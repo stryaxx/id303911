@@ -15,17 +15,22 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Laptop
+ * @author Vaden
  */
 @Entity
 @Table(name = "ACCOUNT")
+@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Account.findAll", query = "SELECT a FROM Account a"),
+    @NamedQuery(name = "Account.findById", query = "SELECT a FROM Account a WHERE a.id = :id"),
+    @NamedQuery(name = "Account.authorize", query = "SELECT a FROM Account a WHERE a.username = :username AND a.password = :password"),
     @NamedQuery(name = "Account.findByUsername", query = "SELECT a FROM Account a WHERE a.username = :username"),
-    @NamedQuery(name = "Account.findByPassword", query = "SELECT a FROM Account a WHERE a.password = :password")})
+    @NamedQuery(name = "Account.findByPassword", query = "SELECT a FROM Account a WHERE a.password = :password"),
+    @NamedQuery(name = "Account.findBySession", query = "SELECT a FROM Account a WHERE a.session = :session")})
 public class Account implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -33,17 +38,31 @@ public class Account implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
-    @Column(name = "USERNAME")
+    @Column(name = "ID", nullable = false, length = 255)
+    private String id;
+    @Size(max = 255)
+    @Column(name = "USERNAME", length = 255)
     private String username;
     @Size(max = 255)
-    @Column(name = "PASSWORD")
+    @Column(name = "PASSWORD", length = 255)
     private String password;
+    @Size(max = 255)
+    @Column(name = "SESSION", length = 255)
+    private String session;
 
     public Account() {
     }
 
-    public Account(String username) {
-        this.username = username;
+    public Account(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -62,10 +81,18 @@ public class Account implements Serializable {
         this.password = password;
     }
 
+    public String getSession() {
+        return session;
+    }
+
+    public void setSession(String session) {
+        this.session = session;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (username != null ? username.hashCode() : 0);
+        hash += (id != null ? id.hashCode() : 0);
         return hash;
     }
 
@@ -76,7 +103,7 @@ public class Account implements Serializable {
             return false;
         }
         Account other = (Account) object;
-        if ((this.username == null && other.username != null) || (this.username != null && !this.username.equals(other.username))) {
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
         return true;
@@ -84,7 +111,7 @@ public class Account implements Serializable {
 
     @Override
     public String toString() {
-        return "com.espenv.storefront.Account[ username=" + username + " ]";
+        return "com.espenv.storefront.Entities.Account[ id=" + id + " ]";
     }
     
 }

@@ -14,23 +14,22 @@ and open the template in the editor.
         <script src="jquery.js"></script>
             
     </head>
-    <a href="#" onclick="login();">TEST!!!!</a>
+    
     <body>
-       
+        <div id="content">
         <div class="loginbox">
             <a id="loginmsg">No msg yet</a>
             <img src="avatar.png" class="avatar">
-            <h1>Login here</h1>
+            <h1 id="header">Login here</h1>
          
                 <p>Username: </p>
                 <input type="text" id="username" placeholder="Enter usernamer">
                 <p>Password: </p>
                 <input type="password" id="password" placeholder="Enter password">
-                <br><input type="submit" value="Login" onclick="login();"><br>
-                <a href="#">Forgotten password?</a><br>
-                <a href="#">Don't have an account?</a>
+                <br><input type="submit" id="authBtn" value="Login" onclick="auth();"><br>
+                <a href="#" onclick="nav();" id="nav">Register</a>
            
         </div>
-        
+        </div>
     </body>
 </html>

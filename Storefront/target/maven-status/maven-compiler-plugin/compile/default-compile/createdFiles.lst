@@ -1,2 +1,6 @@
 com\espenv\storefront\resources\JavaEE8Resource.class
+com\espenv\storefront\ItemMangement.class
+com\espenv\storefront\AccountManagement.class
+com\espenv\storefront\Entities\Items.class
+com\espenv\storefront\Entities\Account.class
 com\espenv\storefront\JAXRSConfiguration.class

@@ -6,6 +6,9 @@
 package com.espenv.storefront;
 
 import com.espenv.storefront.Entities.Account;
+import com.espenv.storefront.Entities.Items;
+import java.util.List;
+import java.util.Random;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Consumes;
@@ -17,6 +20,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import javax.validation.Valid;
 import javax.ws.rs.POST;
 import javax.ws.rs.core.MediaType;
@@ -25,79 +29,78 @@ import javax.ws.rs.core.Response;
 /**
  * REST Web Service
  *
- *
+ * @author Vaden
  */
-@Path("account")
+@Path("store")
 @RequestScoped
-public class AccountManagement {
-
+public class ItemMangement {
+Random rand;
     @Context
     private UriInfo context;
 
     /**
-     * Creates a new instance of register
+     * Creates a new instance of ItemMangement
      */
-    public AccountManagement() {
+    public ItemMangement() {
+        rand = new Random();
     }
 
     /**
-     * Retrieves representation of an instance of com.espenv.storefront.register
+     * Retrieves representation of an instance of com.espenv.storefront.ItemMangement
      * @return an instance of java.lang.String
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getJson() {
+    @Produces(MediaType.APPLICATION_XML)
+    public String getXml() {
         //TODO return proper representation object
         throw new UnsupportedOperationException();
     }
 
     /**
-     * PUT method for updating or creating an instance of register
+     * PUT method for updating or creating an instance of ItemMangement
      * @param content representation for the resource
      */
     @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void putJson(String content) {
+    @Consumes(MediaType.APPLICATION_XML)
+    public void putXml(String content) {
     }
     
     @POST
-    @Path("/register")
+    @Path("/publish")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response Register(@Valid Account account)
+    public Response Publish(@Valid Items items)
     {
+        
+        int int_random = rand.nextInt(9999);
+        items.setId(String.valueOf(int_random));
+        
         EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
         EntityManager entityManager = emFactory.createEntityManager();
        
-        entityManager.getTransaction().begin();
+       entityManager.getTransaction().begin();
         
-        entityManager.merge(account);
+        entityManager.merge(items);
         
         entityManager.getTransaction().commit();
+        
         entityManager.close();
-        System.out.println(account.getUsername());
         return Response.status(201).entity("OK").build();
     }
     
-    @POST
-    @Path("/login")
+    @GET
+    @Path("/retrieve")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response Login(@Valid Account account)
+    public List<Items> Retrieve(@Valid Items items)
     {
         EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
         EntityManager entityManager = emFactory.createEntityManager();
        
-        int foundAccount = entityManager.createNamedQuery("Account.authorize").setParameter("username", account.getUsername()).setParameter("password", account.getPassword())
-                .getResultList().size();
+       TypedQuery<Items> query = entityManager.createNamedQuery("Items.findAll", Items.class);
+
+        List<Items> results = query.getResultList();
+
         entityManager.close();
         
-        if (foundAccount == 1) {
-            //Success
-            return Response.status(201).entity("OK").build();
-        }
-        else {
-            //Failure
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        
+        return results;
     }
 }
