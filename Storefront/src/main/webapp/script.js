@@ -23,7 +23,7 @@ function auth() {
         var content = document.getElementById("content");
         content.innerHTML = "";
         populate();
-        $('*').css('background', 'transparent');
+        $('body').css('background', 'transparent');
     },
         error: function( errMsg ){
         // ERROR
@@ -101,7 +101,7 @@ function publish(e) {
 }
 
 function populate() {
-    $("#content").append('<a href="#" id="publish" onclick="publishPage();">Publish item</a>');
+    $("#content").append('<a href="#" id="publish" onclick="publishPage();"> Publish item </a>');
     $.getJSON("api/store/retrieve", function(data){
         $.each(data, function (index, value) {
             //(document.getElementById('items').innerHTML = '<div id="item_"><div id="image_"></div><div id="title_"></div><div id="description_"></div></div>';
