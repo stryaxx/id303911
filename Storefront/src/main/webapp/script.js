@@ -5,6 +5,7 @@
  */
 
 var currentPage = "login";
+var sessionID = "";
 
 function auth() {
     var msg=document.getElementById("loginmsg");
@@ -19,7 +20,7 @@ function auth() {
         data: JSON.stringify({"username":username,"password":password, "id":"null", "session":"null"}),
         success: function( response ){
        // SUCCESS...
-	msg.innerHTML = "Login success!";
+	sessionID = response;
         var content = document.getElementById("content");
         content.innerHTML = "";
         populate();
@@ -84,7 +85,7 @@ function publish(e) {
         url: 'api/store/publish',
         type: 'post',
         contentType: 'application/json',
-        data: JSON.stringify({"id":"1", "userid":"1", "title":title, "description":description, "price":price, "image":img}),
+        data: JSON.stringify({"id":"1", "userid":"1", "title":title, "description":description, "price":price, "image":img, "sold":"0"}),
         success: function( response ){
        // SUCCESS...
 	var content = document.getElementById('content');
@@ -101,13 +102,33 @@ function publish(e) {
 }
 
 function populate() {
-    $("#content").append('<a href="#" id="publish" onclick="publishPage();"> Publish item </a>');
+    var isLoggedIn = authSession();
+    /*if (isLoggedIn == true ) {
+        $("#content").append('<a href="#" id="publish" onclick="publishPage();"> Publish item </a>');
+    }
+    else {
+        $("#content").append('<a href="#" id="publish" onclick="auth();"> Login </a>');
+    }*/
+    $.ajax({
+        url: 'api/account/session',
+        type: 'post',
+        contentType: 'application/json',
+        data: JSON.stringify({"username":"","password":"", "id":"null", "session":sessionID}),
+        success: function( response ){
+       // SUCCESS...
+        $("#content").append('<a href="#" id="publish" onclick="publishPage();"> Publish item </a>');
+    },
+        error: function( errMsg ){
+        // ERROR
+	$("#content").append('<a href="#" id="publish" onclick="navLogin();"> Login </a>');
+    }
+    }); 
     $.getJSON("api/store/retrieve", function(data){
         $.each(data, function (index, value) {
             //(document.getElementById('items').innerHTML = '<div id="item_"><div id="image_"></div><div id="title_"></div><div id="description_"></div></div>';
             //document.write('<div id="item_"><div id="image_"></div><div id="title_"></div><div id="description_"></div></div>');
            
-            $("#content").append('<div class="item" id="item_'+value.id+'"><div class="image" id="image_'+value.id+'"></div><div class="title" id="title_'+value.id+'"></div><div class="description" id="description_'+value.id+'"></div><div class="price" id="price_'+value.id+'"></div></div>');
+            $("#content").append('<div class="item" id="item_'+value.id+'"><div class="image" id="image_'+value.id+'"></div><div class="title" id="title_'+value.id+'"></div><div class="description" id="description_'+value.id+'"></div><div class="price" id="price_'+value.id+'"></div><div class="buy"><a href="#" onclick="buyItem('+value.id+');">Buy item</a></div></div>');
             document.getElementById('title_'+value.id).innerHTML = value.title;
             document.getElementById('description_'+value.id).innerHTML = "Description: "+value.description;
             document.getElementById('price_'+value.id).innerHTML = "Price: "+value.price;
@@ -123,3 +144,35 @@ function publishPage() {
     content.innerHTML = "";
     content.innerHTML = '<p>Upload image: </p><input type="file" id="sendImage" accept="image/png, image/jpeg" /> <br/><p>Title of the item: </p><input type="text" id="title" placeholder="Enter title here"><p>Place a description of the item: </p><input type="text" id="description" placeholder="Enter description here"><p>Price: </p><input type="text" id="price" placeholder="Enter price"><input type="submit" id="sell" value="Publish ad" onclick="publish();">';
 }
+
+function authSession() {
+    if (sessionID == "") {
+        return 0;
+    }
+        
+}
+
+function navLogin() {
+    var content = document.getElementById('content');
+    content.innerHTML = "";
+    content.innerHTML = '<div class="loginbox"><a id="loginmsg"></a><img src="avatar.png" class="avatar"><h1 id="header">Login here</h1><p>Username: </p><input type="text" id="username" placeholder="Enter usernamer"><p>Password: </p><input type="password" id="password" placeholder="Enter password"><br><input type="submit" id="authBtn" value="Login" onclick="auth();"><br><a href="#" onclick="nav();" id="nav">Register</a></div>';
+}
+
+function buyItem(id) {
+    $.ajax({
+        url: 'api/store/buy',
+        type: 'post',
+        contentType: 'application/json',
+        data: JSON.stringify({"id":id,"description":"", "image":"null", "price":"", "title":"", "userid":sessionID, "sold":"0"}),
+        success: function( response ){
+       // SUCCESS...
+        var content = document.getElementById('content');
+        content.innerHTML = "";
+        populate();
+    },
+        error: function( errMsg ){
+        // ERROR
+    }
+    });
+}
+

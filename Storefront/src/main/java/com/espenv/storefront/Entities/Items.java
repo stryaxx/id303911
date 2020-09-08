@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Table(name = "ITEMS")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Items.findAll", query = "SELECT i FROM Items i"),
+    @NamedQuery(name = "Items.findAll", query = "SELECT i FROM Items i WHERE i.sold = 0"),
     @NamedQuery(name = "Items.findById", query = "SELECT i FROM Items i WHERE i.id = :id"),
     @NamedQuery(name = "Items.findByUserid", query = "SELECT i FROM Items i WHERE i.userid = :userid"),
     @NamedQuery(name = "Items.findByTitle", query = "SELECT i FROM Items i WHERE i.title = :title"),
@@ -57,6 +57,9 @@ public class Items implements Serializable {
     @Size(max = 15000000)
     @Column(name = "IMAGE", length = 15000000)
     private String image;
+    @Size(max = 255)
+    @Column(name = "SOLD", length = 255)
+    private String sold;
 
     public Items() {
     }
@@ -71,6 +74,14 @@ public class Items implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+    
+    public String getSold() {
+        return sold;
+    } 
+    
+    public void setSold(String sold) {
+        this.sold = sold;
     }
 
     public String getUserid() {

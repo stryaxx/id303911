@@ -7,6 +7,7 @@ package com.espenv.storefront;
 
 import com.espenv.storefront.Entities.Account;
 import com.espenv.storefront.Entities.Items;
+import com.espenv.storefront.Entities.Purchases;
 import java.util.List;
 import java.util.Random;
 import javax.ws.rs.core.Context;
@@ -103,4 +104,35 @@ Random rand;
         
         return results;
     }
+    
+    @POST
+    @Path("/buy")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response Buy(@Valid Items items)
+    {
+       String userSessionId = items.getUserid();
+       
+       
+        
+        EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
+        EntityManager entityManager = emFactory.createEntityManager();
+       
+        TypedQuery<Items> query = entityManager.createNamedQuery("Items.findById", Items.class).setParameter("id", items.getId());
+        List<Items> results = query.getResultList();
+        
+        entityManager.getTransaction().begin();
+        System.out.println("Item ID: "+items.getId());
+        results.get(0).setSold("1");
+        entityManager.merge(results.get(0));
+        entityManager.getTransaction().commit();
+        
+        
+        Purchases purchases = new Purchases();
+        purchases.setItemid(results.get(0).getId());
+        
+        
+        entityManager.close();
+        return Response.status(201).entity("OK").build();
+    }
+   
 }

@@ -6,6 +6,7 @@
 package com.espenv.storefront;
 
 import com.espenv.storefront.Entities.Account;
+import java.util.Random;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Consumes;
@@ -30,6 +31,7 @@ import javax.ws.rs.core.Response;
 @Path("account")
 @RequestScoped
 public class AccountManagement {
+    Random rand;
 
     @Context
     private UriInfo context;
@@ -38,6 +40,7 @@ public class AccountManagement {
      * Creates a new instance of register
      */
     public AccountManagement() {
+        rand = new Random();
     }
 
     /**
@@ -83,8 +86,16 @@ public class AccountManagement {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response Login(@Valid Account account)
     {
+        int sessionID = rand.nextInt(9999);
+        account.setSession(String.valueOf(sessionID));
+        
         EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
         EntityManager entityManager = emFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        
+        entityManager.merge(account);
+        
+        entityManager.getTransaction().commit();
        
         int foundAccount = entityManager.createNamedQuery("Account.authorize").setParameter("username", account.getUsername()).setParameter("password", account.getPassword())
                 .getResultList().size();
@@ -92,7 +103,7 @@ public class AccountManagement {
         
         if (foundAccount == 1) {
             //Success
-            return Response.status(201).entity("OK").build();
+            return Response.status(201).entity(sessionID).build();
         }
         else {
             //Failure
@@ -100,4 +111,32 @@ public class AccountManagement {
         }
         
     }
+    
+    @POST
+    @Path("/session")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response session(@Valid Account account)
+    {
+       
+        EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
+        EntityManager entityManager = emFactory.createEntityManager();
+       
+        int foundAccount = entityManager.createNamedQuery("Account.findBySession").setParameter("session", account.getSession())
+                .getResultList().size();
+        entityManager.close();
+        
+        System.out.println("Session ID: " +account.getSession());
+        if (foundAccount == 1) {
+            //Success
+            System.out.println("Success");
+            return Response.status(201).entity("OK").build();
+        }
+        else {
+            //Failure
+            System.out.println("Failure");
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        
+    }
+    
 }

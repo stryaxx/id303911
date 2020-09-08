@@ -4,6 +4,7 @@
   <persistence-unit name="my_persistence_unit">
     <class>com.espenv.storefront.Entities.Account</class>
     <class>com.espenv.storefront.Entities.Items</class>
+    <class>com.espenv.storefront.Entities.Purchases</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1527/sample"/>
       <property name="javax.persistence.jdbc.user" value="app"/>
