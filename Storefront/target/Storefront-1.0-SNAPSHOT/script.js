@@ -85,7 +85,7 @@ function publish(e) {
         url: 'api/store/publish',
         type: 'post',
         contentType: 'application/json',
-        data: JSON.stringify({"id":"1", "userid":"1", "title":title, "description":description, "price":price, "image":img, "sold":"0"}),
+        data: JSON.stringify({"id":"1", "userid":sessionID, "title":title, "description":description, "price":price, "image":img, "sold":"0"}),
         success: function( response ){
        // SUCCESS...
 	var content = document.getElementById('content');
@@ -103,8 +103,10 @@ function publish(e) {
 
 function populate() {
     var isLoggedIn = authSession();
+    var content = document.getElementById('content');
+    content.innerHTML = "";
     /*if (isLoggedIn == true ) {
-        $("#content").append('<a href="#" id="publish" onclick="publishPage();"> Publish item </a>');
+        $("#content").append('<a href="#" id="publish" onclick="publishPage();"> Publish item </a><br><a href="#" id="publish" onclick="historyPage();"> Buy / Sell history</a>');
     }
     else {
         $("#content").append('<a href="#" id="publish" onclick="auth();"> Login </a>');
@@ -117,6 +119,7 @@ function populate() {
         success: function( response ){
        // SUCCESS...
         $("#content").append('<a href="#" id="publish" onclick="publishPage();"> Publish item </a>');
+        $("#content").append('<a href="#" id="publish" onclick="historyPage();"> Buy / Sell history</a>');
     },
         error: function( errMsg ){
         // ERROR
@@ -128,7 +131,7 @@ function populate() {
             //(document.getElementById('items').innerHTML = '<div id="item_"><div id="image_"></div><div id="title_"></div><div id="description_"></div></div>';
             //document.write('<div id="item_"><div id="image_"></div><div id="title_"></div><div id="description_"></div></div>');
            
-            $("#content").append('<div class="item" id="item_'+value.id+'"><div class="image" id="image_'+value.id+'"></div><div class="title" id="title_'+value.id+'"></div><div class="description" id="description_'+value.id+'"></div><div class="price" id="price_'+value.id+'"></div><div class="buy"><a href="#" onclick="buyItem('+value.id+');">Buy item</a></div></div>');
+            $("#content").append('<div class="item" id="item_'+value.id+'"><div class="image" id="image_'+value.id+'"></div><div class="title" id="title_'+value.id+'"></div><div class="description" id="description_'+value.id+'"></div><div class="price" id="price_'+value.id+'"></div><div class="buy"><a href="#" id="buy" onclick="buyItem('+value.id+');">Buy item</a></div></div>');
             document.getElementById('title_'+value.id).innerHTML = value.title;
             document.getElementById('description_'+value.id).innerHTML = "Description: "+value.description;
             document.getElementById('price_'+value.id).innerHTML = "Price: "+value.price;
@@ -173,6 +176,50 @@ function buyItem(id) {
         error: function( errMsg ){
         // ERROR
     }
+    });
+}
+
+function historyPage() {
+    var content = document.getElementById('content');
+    content.innerHTML = "";
+    $("#content").append('<a href="#" id="publish" onclick="populate();"> Go back </a>');
+    $.getJSON("api/store/sold?session=" + sessionID, function(data)
+    {
+        $("#content").append('<h1>Sale history</h1>');
+        $.each(data, function (index, value) {
+            //(document.getElementById('items').innerHTML = '<div id="item_"><div id="image_"></div><div id="title_"></div><div id="description_"></div></div>';
+            //document.write('<div id="item_"><div id="image_"></div><div id="title_"></div><div id="description_"></div></div>');
+           
+            $("#content").append('<div class="item" id="item_'+value.id+'"><div class="image" id="image_'+value.id+'"></div><div class="title" id="title_'+value.id+'"></div><div class="description" id="description_'+value.id+'"></div><div class="price" id="price_'+value.id+'"></div></div>');
+            document.getElementById('title_'+value.id).innerHTML = value.title;
+            document.getElementById('description_'+value.id).innerHTML = "Description: "+value.description;
+            document.getElementById('price_'+value.id).innerHTML = "Price: "+value.price;
+            var appendImage = document.createElement("img");
+            appendImage.src = value.image;
+            document.getElementById('image_'+value.id).appendChild(appendImage);
+            if (value.sold == "1") {
+                document.getElementById('price_'+value.id).innerHTML = "SOLD!";
+            }
+        });
+    });
+    $.getJSON("api/store/bought?session=" + sessionID, function(data)
+    {
+        $("#content").append('<h1>Buy history</h1>');
+        $.each(data, function (index, value) {
+            //(document.getElementById('items').innerHTML = '<div id="item_"><div id="image_"></div><div id="title_"></div><div id="description_"></div></div>';
+            //document.write('<div id="item_"><div id="image_"></div><div id="title_"></div><div id="description_"></div></div>');
+           
+            $("#content").append('<div class="item" id="item_sold'+value.id+'"><div class="image" id="image_sold'+value.id+'"></div><div class="title" id="title_sold'+value.id+'"></div><div class="description" id="description_sold'+value.id+'"></div><div class="price" id="price_sold'+value.id+'"></div><div class="buy"></div>');
+            document.getElementById('title_sold'+value.id).innerHTML = value.title;
+            document.getElementById('description_sold'+value.id).innerHTML = "Description: "+value.description;
+            document.getElementById('price_sold'+value.id).innerHTML = "Price: "+value.price;
+            var appendImage = document.createElement("img");
+            appendImage.src = value.image;
+            document.getElementById('image_sold'+value.id).appendChild(appendImage);
+            if (value.sold == "1") {
+                document.getElementById('price_sold'+value.id).innerHTML = '<div id="itemSold">SOLD!</div>';
+            }
+        });
     });
 }
 

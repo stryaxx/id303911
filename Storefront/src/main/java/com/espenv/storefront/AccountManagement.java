@@ -6,6 +6,7 @@
 package com.espenv.storefront;
 
 import com.espenv.storefront.Entities.Account;
+import java.util.List;
 import java.util.Random;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -73,6 +74,9 @@ public class AccountManagement {
        
         entityManager.getTransaction().begin();
         
+        int userID = rand.nextInt(9999);
+        account.setId(String.valueOf(userID));
+        
         entityManager.merge(account);
         
         entityManager.getTransaction().commit();
@@ -87,13 +91,19 @@ public class AccountManagement {
     public Response Login(@Valid Account account)
     {
         int sessionID = rand.nextInt(9999);
-        account.setSession(String.valueOf(sessionID));
         
         EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
         EntityManager entityManager = emFactory.createEntityManager();
         entityManager.getTransaction().begin();
         
-        entityManager.merge(account);
+        List<Account> accounts = entityManager.createNamedQuery("Account.findByUsername").setParameter("username", account.getUsername())
+                .getResultList();
+        if (accounts.size() == 0) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        accounts.get(0).setSession(String.valueOf(sessionID));
+        
+        entityManager.merge(accounts.get(0));
         
         entityManager.getTransaction().commit();
        

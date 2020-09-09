@@ -152,8 +152,21 @@ a#publish {
     margin-top: 50px;
 }
 
-.buy {
+a#buy {
     bottom: 0;
     text-align: right;
     float: right;
+    color: green;
+}
+
+#itemSold {
+    color: #ff0000;
+    font-weight: bold;
+}
+
+#content {
+    text-align: center;
+    float: center;
+    display: block;
+    margin: auto;
 }
