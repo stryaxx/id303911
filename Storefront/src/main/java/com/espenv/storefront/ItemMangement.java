@@ -99,7 +99,7 @@ Random rand;
     
     @GET
     @Path("/retrieve")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces (MediaType.APPLICATION_JSON)
     public List<Items> Retrieve(@Valid Items items)
     {
         EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("my_persistence_unit");

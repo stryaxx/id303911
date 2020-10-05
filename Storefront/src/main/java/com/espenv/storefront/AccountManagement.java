@@ -6,6 +6,7 @@
 package com.espenv.storefront;
 
 import com.espenv.storefront.Entities.Account;
+import com.espenv.storefront.Entities.Items;
 import java.util.List;
 import java.util.Random;
 import javax.ws.rs.core.Context;
@@ -19,8 +20,10 @@ import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import javax.validation.Valid;
 import javax.ws.rs.POST;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -149,4 +152,42 @@ public class AccountManagement {
         
     }
     
+    @GET
+    @Path("/login2")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response Login2(@QueryParam("username")String username, @QueryParam("password")String password)
+    {
+         int sessionID = rand.nextInt(9999);
+        
+        EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
+        EntityManager entityManager = emFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        
+        List<Account> accounts = entityManager.createNamedQuery("Account.findByUsername").setParameter("username", username)
+                .getResultList();
+        if (accounts.size() == 0) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        accounts.get(0).setSession(String.valueOf(sessionID));
+        
+        entityManager.merge(accounts.get(0));
+        
+        entityManager.getTransaction().commit();
+       
+        int foundAccount = entityManager.createNamedQuery("Account.authorize").setParameter("username", username).setParameter("password", password)
+                .getResultList().size();
+        entityManager.close();
+        
+        if (foundAccount == 1) {
+            //Success
+            return Response.status(Response.Status.OK).entity(sessionID).build();
+        }
+        else {
+            //Failure
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        
+         
+    }
+        
 }
