@@ -17,7 +17,10 @@ function auth() {
         url: 'api/account/login',
         type: 'post',
         contentType: 'application/json',
-        data: JSON.stringify({"username":username,"password":password, "id":"null", "session":"null"}),
+        data: JSON.stringify({"username":username,"password":password, 
+            "id":"null", "session":"null", "firstname":"firstname", 
+            "lastname":"lastname", "email":username, "zipcode":"zipcode", 
+            "address":"address", "city":"city"}),
         success: function( response ){
        // SUCCESS...
 	sessionID = response;

@@ -88,6 +88,43 @@ public class AccountManagement {
         return Response.status(201).entity("OK").build();
     }
     
+    @GET
+    @Path("/register2")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response Register2(@QueryParam("username")String username, 
+            @QueryParam("password")String password, 
+            @QueryParam("email")String email, 
+            @QueryParam("zipcode")String zipcode, 
+            @QueryParam("city")String city,
+            @QueryParam("address")String address,
+            @QueryParam("firstname")String firstname,
+            @QueryParam("lastname")String lastname)
+    {
+         EntityManagerFactory emFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
+        EntityManager entityManager = emFactory.createEntityManager();
+       
+        entityManager.getTransaction().begin();
+        
+        int userID = rand.nextInt(9999);
+        Account account = new Account();
+        account.setUsername(username);
+        account.setId(String.valueOf(userID));
+        account.setPassword(password);
+        account.setEmail(email);
+        account.setZipcode(zipcode);
+        account.setCity(city);
+        account.setAddress(address);
+        account.setFirstname(firstname);
+        account.setLastname(lastname);
+        
+        entityManager.merge(account);
+        
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        System.out.println(account.getUsername());
+        return Response.status(Response.Status.OK).entity("OK").build();
+    }
+    
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -99,7 +136,7 @@ public class AccountManagement {
         EntityManager entityManager = emFactory.createEntityManager();
         entityManager.getTransaction().begin();
         
-        List<Account> accounts = entityManager.createNamedQuery("Account.findByUsername").setParameter("username", account.getUsername())
+        List<Account> accounts = entityManager.createNamedQuery("Account.findByEmail").setParameter("email", account.getUsername())
                 .getResultList();
         if (accounts.size() == 0) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -110,7 +147,7 @@ public class AccountManagement {
         
         entityManager.getTransaction().commit();
        
-        int foundAccount = entityManager.createNamedQuery("Account.authorize").setParameter("username", account.getUsername()).setParameter("password", account.getPassword())
+        int foundAccount = entityManager.createNamedQuery("Account.authorize").setParameter("email", account.getUsername()).setParameter("password", account.getPassword())
                 .getResultList().size();
         entityManager.close();
         
@@ -163,7 +200,7 @@ public class AccountManagement {
         EntityManager entityManager = emFactory.createEntityManager();
         entityManager.getTransaction().begin();
         
-        List<Account> accounts = entityManager.createNamedQuery("Account.findByUsername").setParameter("username", username)
+        List<Account> accounts = entityManager.createNamedQuery("Account.findByEmail").setParameter("email", username)
                 .getResultList();
         if (accounts.size() == 0) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -174,7 +211,7 @@ public class AccountManagement {
         
         entityManager.getTransaction().commit();
        
-        int foundAccount = entityManager.createNamedQuery("Account.authorize").setParameter("username", username).setParameter("password", password)
+        int foundAccount = entityManager.createNamedQuery("Account.authorize").setParameter("email", username).setParameter("password", password)
                 .getResultList().size();
         entityManager.close();
         
@@ -185,9 +222,7 @@ public class AccountManagement {
         else {
             //Failure
             return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        
-         
+        }     
     }
         
 }
