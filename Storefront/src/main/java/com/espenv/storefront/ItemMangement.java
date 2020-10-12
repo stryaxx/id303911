@@ -94,7 +94,7 @@ Random rand;
         entityManager.getTransaction().commit();
         
         entityManager.close();
-        return Response.status(201).entity("OK").build();
+        return Response.status(Response.Status.OK).entity(String.valueOf(int_random)).build();
     }
     
     @GET
